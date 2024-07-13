@@ -1,18 +1,13 @@
 name: Continuous Integration
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
-    branches:
-      - main
 
 env:
   MAJOR_MINOR_PATCH: 0.0.1
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test-javascript:
