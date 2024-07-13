@@ -94,9 +94,11 @@ jobs:
           fi
           echo 'use_version_suffix' "$USE"
           echo 'version_suffix: ' "$SUFFIX"
-          echo "use_version_suffix=$USE" >> "$GITHUB_OUTPUT"
-          echo "version_suffix=$SUFFIX" >> "$GITHUB_OUTPUT"
-          echo "extension=$EXTENSION" >> "$GITHUB_OUTPUT"
+          {
+            echo "use_version_suffix=$USE"
+            echo "version_suffix=$SUFFIX"
+            echo "extension=$EXTENSION"
+          } >> "$GITHUB_OUTPUT"
       - name: Semantic version
         id: semantic_version
         run: |
