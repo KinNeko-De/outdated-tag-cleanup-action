@@ -74,13 +74,13 @@ jobs:
       - name: Version suffix
         id: version_suffix
         run: |
-          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+          if [[ "${{ github.event_name }}" == 'pull_request' ]]; then
             echo 'for pull request pipeline'
             USE=true
-            SUFFIX=${GITHUB_HEAD_REF##*/}.${{github.run_number}}
+            SUFFIX="${GITHUB_HEAD_REF##*/}.${{github.run_number}}"
             EXTENSION="-${SUFFIX}"
           else
-            if [[ ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+            if [[ "${{ github.ref }}" == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
               echo 'for default branch pipeline'
               USE=false
               SUFFIX=''
@@ -88,12 +88,12 @@ jobs:
           else
               echo 'for feature branch pipeline'
               USE=true
-              SUFFIX=${GITHUB_REF##*/}.${{github.run_number}}
+              SUFFIX="${GITHUB_REF##*/}.${{github.run_number}}"
               EXTENSION="-${SUFFIX}"
             fi
           fi
-          echo 'use_version_suffix' $USE
-          echo 'version_suffix: ' $SUFFIX
+          echo 'use_version_suffix' "$USE"
+          echo 'version_suffix: ' "$SUFFIX"
           echo "use_version_suffix=$USE" >> $GITHUB_OUTPUT
           echo "version_suffix=$SUFFIX" >> $GITHUB_OUTPUT
           echo "extension=$EXTENSION" >> $GITHUB_OUTPUT
