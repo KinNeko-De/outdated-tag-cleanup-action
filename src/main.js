@@ -1,27 +1,47 @@
-const core = require('@actions/core')
-const { wait } = require('./wait')
+const core = require('@actions/core');
+const github = require('@actions/github');
 
-/**
- * The main function for the action.
- * @returns {Promise<void>} Resolves when the action is complete.
- */
 async function run() {
   try {
-    const ms = core.getInput('milliseconds', { required: true })
+    const token = core.getInput('token', { required: true });
+    const octokit = github.getOctokit(token);
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const existingFeatureBranches = (await octokit.rest.repos.listBranches({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+    })).data.map(branch => branch.name);
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    console.log("Existing feature branches:", existingFeatureBranches);
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    const tags = await octokit.rest.git.listMatchingRefs({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      ref: 'tags/v',
+    });
+
+    for (const tag of tags.data) {
+      const tagName = tag.ref.replace('refs/tags/', '');
+      core.debug("Tag: " + tagName);
+
+      const tagParts = /^v[0-9]*\.[0-9]*\.[0-9]*-(.*)\.([0-9]*)$/.exec(tagName);
+      if (tagParts) {
+        const featureBranchName = tagParts[1];
+        core.debug("Feature branch name: " + featureBranchName);
+
+        if (!existingFeatureBranches.includes(`feature/${featureBranchName}`)) {
+          core.log(`Branch ${featureBranchName} does not exist, so deleting tag ${tagName}`);
+          await octokit.rest.git.deleteRef({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            ref: `tags/${tagName}`,
+          });
+        } else {
+          core.debug(`Branch ${featureBranchName} exists, so not deleting tag ${tagName}`);
+        }
+      }
+    }
   } catch (error) {
-    // Fail the workflow run if an error occurs
-    core.setFailed(error.message)
+    core.setFailed(error.message);
   }
 }
 
