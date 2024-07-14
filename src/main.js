@@ -23,12 +23,12 @@ async function run() {
 
     for (const tag of tags.data) {
       const tagName = tag.ref.replace('refs/tags/', '')
-      core.debug('Tag: ' + tagName)
+      core.debug(`Tag: ${tagName}`)
 
       const tagParts = /^v[0-9]*\.[0-9]*\.[0-9]*-(.*)\.([0-9]*)$/.exec(tagName)
       if (tagParts) {
         const featureBranchName = tagParts[1]
-        core.debug('Feature branch name: ' + featureBranchName)
+        core.debug(`Feature branch name: ${featureBranchName}`)
 
         if (!existingFeatureBranches.includes(`feature/${featureBranchName}`)) {
           core.log(
