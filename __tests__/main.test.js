@@ -116,4 +116,28 @@ describe('action', () => {
       ref: 'tags/v1.0.1'
     })
   })
+
+  it('should fail if a GitHub REST call throws an error', async () => {
+    // Arrange
+    const errorMessage = 'GitHub API error'
+    const octokitMock = {
+      rest: {
+        repos: {
+          listBranches: jest.fn().mockRejectedValue(new Error(errorMessage))
+        },
+        git: {
+          listMatchingRefs: jest.fn().mockResolvedValue({
+            data: [{ ref: `refs/tags/v1.0.1}` }]
+          }),
+          deleteRef: jest.fn().mockResolvedValue({})
+        }
+      }
+    }
+    github.getOctokit.mockReturnValue(octokitMock)
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, errorMessage)
+  })
 })
