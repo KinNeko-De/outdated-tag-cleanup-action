@@ -23,15 +23,15 @@ async function run() {
 
     for (const tag of tags.data) {
       const tagName = tag.ref.replace('refs/tags/', '')
-      core.debug(`Tag: ${tagName}`)
+      console.log(`Tag: ${tagName}`)
 
       const tagParts = /^v[0-9]*\.[0-9]*\.[0-9]*-(.*)\.([0-9]*)$/.exec(tagName)
       if (tagParts) {
         const featureBranchName = tagParts[1]
-        core.debug(`Feature branch name: ${featureBranchName}`)
+        console.log(`Feature branch name: ${featureBranchName}`)
 
         if (!existingFeatureBranches.includes(`feature/${featureBranchName}`)) {
-          core.log(
+          console.log(
             `Branch ${featureBranchName} does not exist, so deleting tag ${tagName}`
           )
           await octokit.rest.git.deleteRef({
@@ -40,7 +40,7 @@ async function run() {
             ref: `tags/${tagName}`
           })
         } else {
-          core.debug(
+          console.log(
             `Branch ${featureBranchName} exists, so not deleting tag ${tagName}`
           )
         }
