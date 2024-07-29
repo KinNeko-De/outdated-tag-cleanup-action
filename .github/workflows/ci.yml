@@ -4,7 +4,7 @@ on:
   push:
 
 env:
-  MAJOR_MINOR_PATCH: 0.0.1
+  MAJOR_MINOR_PATCH: 0.0.2
 
 permissions:
   contents: write
